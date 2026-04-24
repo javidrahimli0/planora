@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { apiFetch, apiFetchForm } from '@/lib/api';
-import { getApiBaseUrl } from '@/lib/runtime';
 import {
   EventCategoryOption,
   getDefaultEventCategories,
@@ -17,7 +16,7 @@ type Theme = 'light' | 'dark';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_AVATAR_FILE_BYTES = 2 * 1024 * 1024;
-const API_URL = getApiBaseUrl();
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const DEFAULT_CATEGORY_COLOR = '#3b82f6';
 
 export default function ProfilePage() {

@@ -1,6 +1,4 @@
-import { getApiBaseUrl } from './runtime';
-
-const API_URL = getApiBaseUrl();
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export async function apiFetch<T>(
   path: string,

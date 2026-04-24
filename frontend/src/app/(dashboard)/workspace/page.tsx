@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation';
 import CalendarView from '@/components/calendar/CalendarView';
 import { PlanoraEvent } from '@/types/event';
 import { TaskItem } from '@/types/task';
-import { getApiBaseUrl } from '@/lib/runtime';
 
-const API_URL = getApiBaseUrl();
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 function getInitialEventWindow() {
   const now = new Date();

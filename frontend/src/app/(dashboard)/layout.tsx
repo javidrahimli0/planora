@@ -11,7 +11,6 @@ import { apiFetch } from '@/lib/api';
 import { NotificationItem, NotificationPreferenceItem } from '@/types/notification';
 import PlanoraLogoMark from '@/components/shared/PlanoraLogoMark';
 import { io, Socket } from 'socket.io-client';
-import { getSocketUrl } from '@/lib/runtime';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -37,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const token = session?.user.accessToken || '';
   const currentUserId = session?.user.id || '';
-  const apiUrl = getSocketUrl();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
   useEffect(() => {
     pathnameRef.current = pathname;
