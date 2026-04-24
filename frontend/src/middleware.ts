@@ -23,6 +23,7 @@ export const config = {
     '/dashboard/:path*',
     '/calendar/:path*',
     '/workspace/:path*',
+    '/collaboration/:path*',
     '/notes/:path*',
     '/profile/:path*',
     '/tasks/:path*',
