@@ -3,8 +3,9 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import WorkspacesBoard from '@/components/workspaces/WorkspacesBoard';
 import { WorkspaceItem } from '@/types/workspace';
+import { getApiBaseUrl } from '@/lib/runtime';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = getApiBaseUrl();
 
 async function getWorkspaces(token: string): Promise<WorkspaceItem[]> {
   try {

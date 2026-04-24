@@ -5,8 +5,9 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/runtime';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = getApiBaseUrl();
 
 export default function LoginPage() {
   const router = useRouter();

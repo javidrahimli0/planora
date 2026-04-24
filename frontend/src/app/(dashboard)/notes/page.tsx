@@ -3,8 +3,9 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import NotesHome from '@/components/notes/NotesHome';
 import { NoteItem } from '@/types/note';
+import { getApiBaseUrl } from '@/lib/runtime';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = getApiBaseUrl();
 
 async function getNotes(token: string): Promise<NoteItem[]> {
   try {

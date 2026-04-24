@@ -16,12 +16,37 @@ import { setSocketServer } from './lib/socket';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+const splitOrigins = (value?: string) =>
+  value
+    ?.split(',')
+    .map((item) => item.trim())
+    .filter(Boolean) ?? [];
+
+const allowedOrigins = Array.from(
+  new Set([
+    ...splitOrigins(process.env.FRONTEND_URLS),
+    process.env.FRONTEND_URL,
+    process.env.APP_URL,
+    'http://localhost:3000',
+  ].filter((origin): origin is string => Boolean(origin)))
+);
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+};
+
 const app = express();
 const httpServer = createServer(app);
 
 export const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
 });
@@ -29,7 +54,7 @@ export const io = new Server(httpServer, {
 setSocketServer(io);
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000' }));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '5mb' }));
 
 // Health check

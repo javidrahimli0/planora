@@ -1,7 +1,8 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { getApiBaseUrl } from './runtime';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = getApiBaseUrl();
 
 export const authOptions: NextAuthOptions = {
   providers: [

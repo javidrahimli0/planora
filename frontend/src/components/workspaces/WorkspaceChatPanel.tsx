@@ -9,6 +9,7 @@ import { PaginationMeta } from '@/types/pagination';
 import { buildPagedPath } from '@/lib/pagination';
 import { Send } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
+import { getSocketUrl } from '@/lib/runtime';
 
 interface Props {
   workspaceId: string;
@@ -35,7 +36,7 @@ export default function WorkspaceChatPanel({ workspaceId, workspaceName, onMessa
   const restoreScrollRef = useRef<{ previousHeight: number; previousTop: number } | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const CHAT_LIMIT = 80;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const apiUrl = getSocketUrl();
 
   const groupedMessages = useMemo(() => messages, [messages]);
 
