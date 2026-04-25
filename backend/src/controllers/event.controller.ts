@@ -783,8 +783,8 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
           createNotification({
             userId: participantId,
             type: 'workspace_event_created',
-            title: 'Workspace event created',
-            message: `A new${createdEvents.length > 1 ? ' recurring' : ''} event, "${createdEvent.title}", was created in ${workspace?.name || 'your workspace'}.`,
+            title: 'Collaboration event created',
+            message: `A new${createdEvents.length > 1 ? ' recurring' : ''} event, "${createdEvent.title}", was created in the collaboration group "${workspace?.name || 'your collaboration'}".`,
             metadata: {
               target: 'workspace_calendar',
               workspace_id: workspaceId,
@@ -996,6 +996,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
     const timeChanged = requestedStartMs !== existingStartMs || requestedEndMs !== existingEndMs;
 
     if (updatedEvent.workspace_id && timeChanged) {
+      const workspace = await getWorkspace({ workspaceId: updatedEvent.workspace_id });
       const participantRows = await query<{ user_id: string }>(
         `SELECT wm.user_id
          FROM workspace_members wm
@@ -1011,8 +1012,8 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
           createNotification({
             userId: participantId,
             type: 'workspace_event_updated',
-            title: 'Workspace event updated',
-            message: `The time for "${updatedEvent.title}" changed.`,
+            title: 'Collaboration event updated',
+            message: `The time for "${updatedEvent.title}" changed in the collaboration group "${workspace?.name || 'your collaboration'}".`,
             metadata: {
               target: 'workspace_calendar',
               workspace_id: updatedEvent.workspace_id,

@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/api';
 import { TaskItem } from '@/types/task';
 import { buildPagedPath } from '@/lib/pagination';
+import { ReactNode } from 'react';
 import {
   EventCategoryOption,
   getDefaultEventCategories,
@@ -32,6 +33,19 @@ const localizer = dateFnsLocalizer({
 interface Props {
   initialEvents: PlanoraEvent[];
   initialTasks: TaskItem[];
+}
+
+interface EventWrapperProps {
+  event: CalendarEvent;
+  children?: ReactNode;
+}
+
+function EventWrapper({ event, children }: EventWrapperProps) {
+  return (
+    <div data-planora-event-id={event.id} className="h-full">
+      {children}
+    </div>
+  );
 }
 
 const VIEW_OPTIONS: Array<{ value: View; label: string }> = [
@@ -240,28 +254,18 @@ export default function CalendarView({ initialEvents, initialTasks }: Props) {
     updateCalendarBounds();
 
     const handleEventMouseEnter = (e: MouseEvent) => {
-      const eventElement = (e.target as HTMLElement).closest('.rbc-event');
+      const eventElement = (e.target as HTMLElement).closest('[data-planora-event-id]') as HTMLElement | null;
       if (!eventElement) return;
 
-      const elementText = eventElement.textContent?.trim() || '';
-      if (!elementText) return;
+      const eventId = eventElement.dataset.planoraEventId;
+      if (!eventId) return;
 
-      // Find matching event by text content, preferring longest title matches
-      let bestMatch: PlanoraEvent | null = null;
-      let bestMatchLength = 0;
+      const matchedEvent = eventIdMapRef.current.get(eventId);
+      if (!matchedEvent) return;
 
-      eventIdMapRef.current.forEach((event) => {
-        // Check if element contains this event's title
-        if (elementText.includes(event.title) && event.title.length > bestMatchLength) {
-          bestMatchLength = event.title.length;
-          bestMatch = event;
-        }
-      });
-
-      if (!bestMatch) return;
-
-      const rect = eventElement.getBoundingClientRect();
-      setHoveredEvent(bestMatch);
+      const anchorElement = (e.target as HTMLElement).closest('.rbc-event') as HTMLElement | null;
+      const rect = (anchorElement || eventElement).getBoundingClientRect();
+      setHoveredEvent(matchedEvent);
       setHoverPosition({ x: rect.left, y: rect.bottom + 8 });
     };
 
@@ -521,9 +525,14 @@ export default function CalendarView({ initialEvents, initialTasks }: Props) {
             )}
             {quickTaskItems.map((task) => (
               <div key={task.id} className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm flex items-center justify-between gap-2 hover:bg-[var(--muted)]/50 transition-colors">
-                <p className={`font-medium truncate ${task.status === 'done' ? 'line-through text-[var(--muted-foreground)]' : ''}`}>{task.title}</p>
+                <p
+                  title={task.title}
+                  className={`min-w-0 flex-1 font-medium truncate ${task.status === 'done' ? 'line-through text-[var(--muted-foreground)]' : ''}`}
+                >
+                  {task.title}
+                </p>
                 {task.status === 'done' ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => updateQuickTaskStatus(task.id, 'pending')}
                       className="px-2 py-1 rounded-lg border border-[var(--border)] text-xs hover:bg-[var(--muted)]"
@@ -540,7 +549,7 @@ export default function CalendarView({ initialEvents, initialTasks }: Props) {
                 ) : (
                   <button
                     onClick={() => updateQuickTaskStatus(task.id, 'done')}
-                    className="px-2 py-1 rounded-lg border border-[var(--border)] text-xs hover:bg-[var(--muted)]"
+                    className="px-2 py-1 rounded-lg border border-[var(--border)] text-xs hover:bg-[var(--muted)] shrink-0"
                   >
                     Done
                   </button>
@@ -813,6 +822,9 @@ export default function CalendarView({ initialEvents, initialTasks }: Props) {
         <Calendar
           localizer={localizer}
           events={calEvents}
+          components={{
+            eventWrapper: EventWrapper,
+          }}
           views={['month', 'week', 'day']}
           view={view}
           onView={setView}

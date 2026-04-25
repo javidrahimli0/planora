@@ -9,7 +9,10 @@
   "scripts": {
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev:backend": "npm run dev --workspace=backend",
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "test:unit:frontend": "npm run test:unit --workspace=frontend",
+    "test:unit:backend": "npm run test:unit --workspace=backend",
+    "test:unit": "npm run test:unit:backend && npm run test:unit:frontend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

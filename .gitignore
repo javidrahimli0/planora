@@ -1,6 +1,10 @@
 # Root dependencies and workspace artifacts
 node_modules/
 
+ELTE_FI_Thesis_Template/
+
+Planora Screenshots/
+
 # Logs and runtime artifacts
 *.log
 hs_err_pid*.log

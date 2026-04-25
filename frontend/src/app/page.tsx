@@ -3,11 +3,10 @@ import {
   ArrowRight,
   CalendarDays,
   ClipboardList,
-  Layers3,
   NotebookPen,
-  Sparkles,
   Users,
 } from 'lucide-react';
+import PlanoraLogoMark from '@/components/shared/PlanoraLogoMark';
 
 export default function LandingPage() {
   const pillars = [
@@ -37,12 +36,14 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)] overflow-hidden">
       <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm">
-              <Sparkles className="h-5 w-5" />
+          <div className="flex items-center gap-0.5">
+            <div className="flex items-center justify-center text-[var(--primary)]">
+              <PlanoraLogoMark className="h-9 w-9" />
             </div>
             <div>
-              <p className="text-xl font-black tracking-[0.08em] text-[var(--foreground)]">PLANORA</p>
+              <p className="text-base font-bold tracking-[-0.01em] text-[var(--foreground)] sm:text-lg">
+                PLANORA
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -68,7 +69,7 @@ export default function LandingPage() {
 
         <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8 lg:py-24">
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-            <h1 className="text-5xl font-semibold tracking-[-0.04em] text-[var(--foreground)] md:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-bold tracking-[-0.035em] text-[var(--foreground)] md:text-5xl lg:text-6xl">
               One workspace for
               <span className="block text-[var(--primary)]">tasks, notes, and team planning</span>
             </h1>
@@ -125,19 +126,6 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-
-      <footer className="border-t border-[var(--border)] bg-[var(--card)] px-6 py-6 text-sm text-[var(--muted-foreground)]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:px-2">
-          <div className="flex items-center gap-2 text-[var(--foreground)]/80">
-            <Layers3 className="h-4 w-4 text-[var(--muted-foreground)]" />
-            <span>Planora</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[var(--background)] px-3 py-1.5 text-xs">planora.invitations.noreply@gmail.com</span>
-            <span className="rounded-full bg-[var(--background)] px-3 py-1.5 text-xs">© {new Date().getFullYear()}</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

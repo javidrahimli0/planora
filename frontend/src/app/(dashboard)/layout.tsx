@@ -9,6 +9,7 @@ import { Bell } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { apiFetch } from '@/lib/api';
 import { NotificationItem, NotificationPreferenceItem } from '@/types/notification';
+import PlanoraLogoMark from '@/components/shared/PlanoraLogoMark';
 import { io, Socket } from 'socket.io-client';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -164,8 +165,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!token) return;
-    const wasOnWorkspaces = Boolean(previousPathnameRef.current?.startsWith('/workspaces'));
-    const isOnWorkspaces = Boolean(pathname?.startsWith('/workspaces'));
+    const wasOnWorkspaces = Boolean(previousPathnameRef.current?.startsWith('/collaboration'));
+    const isOnWorkspaces = Boolean(pathname?.startsWith('/collaboration'));
 
     if (isOnWorkspaces) {
       setHasUnseenCollabMessages(false);
@@ -240,7 +241,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const query = new URLSearchParams();
       query.set('workspace', workspaceId);
       if (invitationId) query.set('invitation', invitationId);
-      router.push(`/workspaces?${query.toString()}`);
+      router.push(`/collaboration?${query.toString()}`);
       setNotifOpen(false);
       return;
     }
@@ -251,7 +252,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       return;
     }
 
-    router.push('/workspaces');
+    router.push('/collaboration');
     setNotifOpen(false);
   };
 
@@ -294,7 +295,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     });
 
     socket.on('workspace:message:new', (payload: { user_id?: string }) => {
-      const onCollabPage = pathnameRef.current?.startsWith('/workspaces');
+      const onCollabPage = pathnameRef.current?.startsWith('/collaboration');
       const isOwnMessage = payload?.user_id && payload.user_id === currentUserIdRef.current;
       if (onCollabPage && !isOwnMessage) {
         setHasUnseenCollabMessages(false);
@@ -328,9 +329,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Top Nav */}
       <header className="sticky top-0 z-50 border-b border-[var(--border)]/90 bg-[var(--background)]/90 backdrop-blur-xl px-3 sm:px-4 md:px-6 py-3 flex items-center justify-between gap-3 md:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 overflow-hidden">
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_35%,transparent)]">
-              <span className="text-[var(--primary-foreground)] font-bold text-xs">P</span>
+          <div className="hidden sm:flex items-center gap-0.5">
+            <div className="flex items-center justify-center">
+              <PlanoraLogoMark className="h-8 w-8" />
             </div>
             <span className="font-semibold tracking-tight">Planora</span>
           </div>
@@ -339,10 +340,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {[
               { label: 'Workspace', href: '/workspace' },
               { label: 'Notes', href: '/notes' },
-              { label: 'Collaboration', href: '/workspaces' },
+              { label: 'Collaboration', href: '/collaboration' },
             ].map((item) => {
               const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-              const showCollabDot = item.href === '/workspaces' && hasUnseenCollabMessages && !active;
+              const showCollabDot = item.href === '/collaboration' && hasUnseenCollabMessages && !active;
               return (
                 <Link
                   key={item.href}
