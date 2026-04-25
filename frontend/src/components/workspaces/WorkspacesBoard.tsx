@@ -428,7 +428,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
       setDescInput('');
       setShowCreateModal(false);
     } catch (err: any) {
-      setError(err.message || 'Could not create workspace.');
+      setError(err.message || 'Could not create collaboration.');
     } finally {
       setCreating(false);
     }
@@ -521,7 +521,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
   const deleteWorkspace = async () => {
     if (!token || !selectedId || !selectedWorkspace || !isOwner) return;
     if (deleteConfirmText.trim() !== selectedWorkspace.name) {
-      setDeleteError('Type the exact workspace name to confirm deletion.');
+      setDeleteError('Type the exact collaboration name to confirm deletion.');
       return;
     }
 
@@ -890,14 +890,14 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
           <div className="rounded-3xl border border-[#cf9569] bg-gradient-to-br from-[#b85709] to-[#9f4706] text-white p-4">
             <p className="text-[10px] uppercase tracking-[0.14em] opacity-80">Collaboration</p>
             <p className="mt-1 text-2xl font-semibold leading-none">{workspaceTotalCount}</p>
-            <p className="text-xs mt-1 opacity-80">Active workspaces in your hub</p>
+            <p className="text-xs mt-1 opacity-80">Active collaborations in your hub</p>
           </div>
 
           <button
             onClick={() => setShowCreateModal(true)}
             className="h-11 rounded-2xl bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium"
           >
-            Create workspace
+            Create collaboration
           </button>
 
           <button
@@ -908,20 +908,20 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
           </button>
 
           <div className="rounded-3xl border border-[var(--border)] bg-[var(--muted)]/45 p-2 flex-1 flex flex-col min-h-0">
-            <p className="text-xs uppercase tracking-[0.12em] text-[var(--muted-foreground)] px-2 pb-2">Your workspaces</p>
+            <p className="text-xs uppercase tracking-[0.12em] text-[var(--muted-foreground)] px-2 pb-2">Your collaborations</p>
             <div className="px-2 pb-2">
               <div className="h-9 px-3 rounded-xl border border-[var(--border)] bg-[var(--card)] flex items-center gap-2">
                 <Search className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
                 <input
                   value={workspaceSearch}
                   onChange={(e) => setWorkspaceSearch(e.target.value)}
-                  placeholder="Search workspaces"
+                  placeholder="Search collaborations"
                   className="w-full bg-transparent text-xs outline-none"
                 />
               </div>
             </div>
             <div onScroll={handleWorkspacesScroll} className="compact-scrollbar workspace-sidebar-scroll space-y-1 flex-1 min-h-0 overflow-y-auto pr-2">
-              {filteredWorkspaces.length === 0 && <p className="text-xs text-[var(--muted-foreground)] px-2 py-2">No matching workspace.</p>}
+              {filteredWorkspaces.length === 0 && <p className="text-xs text-[var(--muted-foreground)] px-2 py-2">No matching collaboration.</p>}
               {filteredWorkspaces.map((workspace) => (
                 <button
                   key={workspace.id}
@@ -942,7 +942,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
         <section className="rounded-[28px] border border-[var(--border)] bg-[var(--card)]/96 p-4 sm:p-5 shadow-[0_12px_32px_rgba(9,25,48,0.09)] flex flex-col gap-4 min-h-[460px] xl:min-h-0 overflow-hidden">
           {!selectedWorkspace && (
             <div className="h-full rounded-3xl border border-[var(--border)] bg-[var(--muted)]/40 flex items-center justify-center text-sm text-[var(--muted-foreground)]">
-              Select or create a workspace to open collaboration controls.
+              Select or create a collaboration to open collaboration controls.
             </div>
           )}
 
@@ -971,7 +971,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
                   onClick={() => setShowManageModal(true)}
                   className="h-10 px-4 rounded-xl border border-[var(--border)] bg-[var(--card)] text-sm inline-flex items-center justify-center gap-1.5"
                 >
-                  <Settings2 className="h-4 w-4" /> Manage workspace
+                  <Settings2 className="h-4 w-4" /> Manage collaboration
                 </button>
                 <button
                   onClick={() => setShowWorkspaceEventModal(true)}
@@ -1038,7 +1038,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
         <div className="fixed inset-0 z-40 bg-[#0f172acc]/65 backdrop-blur-sm p-4 sm:p-8 flex items-center justify-center">
           <div className="w-full max-w-lg rounded-3xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5 shadow-[0_28px_70px_rgba(2,8,23,0.35)]">
             <div className="flex items-center justify-between gap-2 mb-3">
-              <h2 className="text-lg font-semibold">Create workspace</h2>
+              <h2 className="text-lg font-semibold">Create collaboration</h2>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="h-9 w-9 rounded-xl border border-[var(--border)] inline-flex items-center justify-center"
@@ -1050,7 +1050,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
               <input
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
-                placeholder="Workspace name"
+                placeholder="Collaboration name"
                 className="h-11 px-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] text-sm outline-none focus:ring-2 focus:ring-[var(--ring)]"
               />
               <textarea
@@ -1089,7 +1089,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
               {myInvitations.map((invitation) => (
                 <div key={invitation.id} className="rounded-2xl border border-[var(--border)] bg-[var(--muted)]/40 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div>
-                    <p className="text-sm font-medium">{invitation.workspace_name || 'Workspace'}</p>
+                    <p className="text-sm font-medium">{invitation.workspace_name || 'Collaboration'}</p>
                     <p className="text-xs text-[var(--muted-foreground)] inline-flex items-center gap-1.5">
                       <Clock3 className="h-3 w-3" />
                       Invited by {invitation.inviter_name || 'a teammate'} · {formatDistanceToNow(new Date(invitation.created_at), { addSuffix: true })}
@@ -1217,7 +1217,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">Manage {selectedWorkspace.name}</h2>
-                <p className="text-xs text-[var(--muted-foreground)]">Invites, members, workspace settings, and deletion controls.</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Invites, members, collaboration settings, and deletion controls.</p>
               </div>
               <button
                 onClick={() => setShowManageModal(false)}
@@ -1229,7 +1229,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
 
             <div className="space-y-6 overflow-y-auto pr-1">
               <section className="space-y-2">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Workspace info</p>
+                <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Collaboration info</p>
                 <div className="rounded-2xl border border-[var(--border)] bg-[var(--muted)]/35 p-4">
                   <p className="text-xs text-[var(--muted-foreground)]">Created by</p>
                   <p className="text-sm font-medium mt-0.5">
@@ -1243,25 +1243,25 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
               </section>
 
               <section className="space-y-2">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Workspace settings</p>
+                <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Collaboration settings</p>
                 <div className="rounded-2xl border border-[var(--border)] bg-[var(--muted)]/35 p-4">
                   {!isOwner && (
                     <p className="text-xs text-[var(--muted-foreground)] mb-2">
-                      Only workspace owners can edit settings.
+                      Only collaboration owners can edit settings.
                     </p>
                   )}
                   <div className="flex flex-col gap-2">
                     <input
                       value={settingsName}
                       onChange={(e) => setSettingsName(e.target.value)}
-                      placeholder="Workspace title"
+                      placeholder="Collaboration title"
                       className="h-10 px-3 rounded-xl border border-[var(--border)] bg-[var(--card)] text-sm"
                       disabled={!isOwner}
                     />
                     <textarea
                       value={settingsDescription}
                       onChange={(e) => setSettingsDescription(e.target.value)}
-                      placeholder="Workspace description"
+                      placeholder="Collaboration description"
                       rows={2}
                       className="px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--card)] text-sm resize-none"
                       disabled={!isOwner}
@@ -1349,7 +1349,7 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
                 <div className="rounded-2xl border border-[var(--border)] bg-[var(--muted)]/35 p-4">
                   {!isOwner && (
                     <p className="text-xs text-[var(--muted-foreground)] mb-2">
-                      Only workspace owners can invite members.
+                      Only collaboration owners can invite members.
                     </p>
                   )}
                   <form onSubmit={sendInvite} className="flex flex-col gap-2">
@@ -1410,14 +1410,14 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
 
               {isOwner ? (
                 <section className="space-y-2">
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Delete workspace</p>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Delete collaboration</p>
                   <div className="rounded-2xl border border-[var(--destructive)]/35 bg-[var(--destructive)]/10 p-4">
                     <div className="flex items-center gap-2 mb-2 text-[var(--destructive)]">
                       <Trash2 className="h-4 w-4" />
-                      <h3 className="text-sm font-semibold">Workspace removal</h3>
+                      <h3 className="text-sm font-semibold">Collaboration removal</h3>
                     </div>
                     <p className="text-xs text-[var(--muted-foreground)] mb-2">
-                      Deleting a workspace is permanent. Type workspace name to confirm.
+                      Deleting a collaboration is permanent. Type collaboration name to confirm.
                     </p>
                     <input
                       value={deleteConfirmText}
@@ -1430,24 +1430,24 @@ export default function WorkspacesBoard({ initialWorkspaces }: Props) {
                       disabled={deletingWorkspace}
                       className="h-10 px-4 rounded-xl bg-[var(--destructive)] text-white text-sm font-medium disabled:opacity-60"
                     >
-                      {deletingWorkspace ? 'Deleting...' : 'Delete workspace'}
+                      {deletingWorkspace ? 'Deleting...' : 'Delete collaboration'}
                     </button>
                     {deleteError && <p className="text-xs text-[var(--destructive)] mt-2">{deleteError}</p>}
                   </div>
                 </section>
               ) : (
                 <section className="space-y-2">
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Leave workspace</p>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Leave collaboration</p>
                   <div className="rounded-2xl border border-[var(--border)] bg-[var(--muted)]/35 p-4">
                     <p className="text-xs text-[var(--muted-foreground)] mb-2">
-                      You will stop receiving workspace chat, events, and notifications for this group.
+                      You will stop receiving collaboration chat, events, and notifications for this group.
                     </p>
                     <button
                       onClick={leaveWorkspace}
                       disabled={leavingWorkspace}
                       className="h-10 px-4 rounded-xl border border-[var(--destructive)]/35 text-[var(--destructive)] text-sm font-medium disabled:opacity-60"
                     >
-                      {leavingWorkspace ? 'Leaving...' : 'Leave workspace'}
+                      {leavingWorkspace ? 'Leaving...' : 'Leave collaboration'}
                     </button>
                   </div>
                 </section>

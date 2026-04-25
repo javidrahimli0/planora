@@ -6,7 +6,8 @@
     "dev": "node ../node_modules/ts-node-dev/lib/bin.js --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "db:migrate": "node ../node_modules/ts-node-dev/lib/bin.js --transpile-only src/db/migrate.ts"
+    "db:migrate": "node ../node_modules/ts-node-dev/lib/bin.js --transpile-only src/db/migrate.ts",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@types/multer": "^2.1.0",
@@ -31,6 +32,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.11.5",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "vitest": "^3.2.4"
   }
 }

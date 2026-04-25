@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planora Frontend
 
-## Getting Started
+This workspace contains the Next.js frontend for Planora.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- NextAuth
+- Vitest for unit tests
+
+## Environment
+
+Create `frontend/.env.local` with:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=change_me
+```
+
+## Scripts
+
+Run from `frontend/`:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
+npm run test:unit
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Or run from repository root:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev:frontend
+npm run test:unit:frontend
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Unit Tests
 
-## Learn More
+- Location: `frontend/tests/unit/`
+- Run: `npm run test:unit` (inside `frontend`) or `npm run test:unit:frontend` (from root)
 
-To learn more about Next.js, take a look at the following resources:
+## Main Routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/workspace` - planner/calendar view
+- `/collaboration` - collaboration board
+- `/notes`, `/tasks`, `/profile`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Auth protection for dashboard routes is handled in `src/middleware.ts`.
+- Frontend only communicates with the backend API; DB access is backend-only.

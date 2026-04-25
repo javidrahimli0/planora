@@ -37,7 +37,7 @@ interface Props {
 
 interface EventWrapperProps {
   event: CalendarEvent;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 function EventWrapper({ event, children }: EventWrapperProps) {
