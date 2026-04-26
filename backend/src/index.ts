@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import * as fs from 'fs';
 import path from 'path';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -99,8 +100,17 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 4000;
 
+const ensureBaseSchema = async () => {
+  const schemaPath = path.resolve(__dirname, '../db/schema.sql');
+  const schemaSql = fs.readFileSync(schemaPath, 'utf-8');
+  await query(schemaSql);
+};
+
 const bootstrap = async () => {
   try {
+    // Ensure foundational tables (including users) exist before running follow-up startup statements.
+    await ensureBaseSchema();
+
     await query(`
       CREATE TABLE IF NOT EXISTS workspaces (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
