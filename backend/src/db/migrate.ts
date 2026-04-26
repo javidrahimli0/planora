@@ -7,7 +7,7 @@ dotenv.config();
 
 const connectionString = process.env.DATABASE_URL?.trim();
 
-const pool = new Pool(
+const standalonePool = new Pool(
   connectionString
     ? { connectionString }
     : {
@@ -19,8 +19,14 @@ const pool = new Pool(
       }
 );
 
-async function migrate() {
-  const schemaPath = path.join(__dirname, '../../db/schema.sql');
+const schemaPath = path.join(__dirname, '../../db/schema.sql');
+
+/**
+ * Runs the schema.sql migration using the provided pool (or the shared app
+ * pool). Exported so that index.ts can call it during bootstrap without
+ * spinning up a second connection pool.
+ */
+export async function runMigration(pool: Pool = standalonePool): Promise<void> {
   const sql = fs.readFileSync(schemaPath, 'utf-8');
 
   console.log('Running migration...');
@@ -30,11 +36,18 @@ async function migrate() {
     console.log('Migration complete — all tables created successfully.');
   } catch (err) {
     console.error('Migration failed:', err);
-    process.exit(1);
+    throw err;
   } finally {
     client.release();
-    await pool.end();
   }
 }
 
-migrate();
+// Allow running directly: `ts-node src/db/migrate.ts`
+if (require.main === module) {
+  runMigration(standalonePool)
+    .then(() => standalonePool.end())
+    .catch(() => {
+      standalonePool.end();
+      process.exit(1);
+    });
+}

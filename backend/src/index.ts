@@ -11,8 +11,9 @@ import taskRoutes from './routes/task.routes';
 import noteRoutes from './routes/note.routes';
 import workspaceRoutes from './routes/workspace.routes';
 import notificationRoutes from './routes/notification.routes';
-import { query } from './lib/db';
+import { query, pool } from './lib/db';
 import { setSocketServer } from './lib/socket';
+import { runMigration } from './db/migrate';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -101,101 +102,7 @@ const PORT = process.env.PORT || 4000;
 
 const bootstrap = async () => {
   try {
-    await query(`
-      CREATE TABLE IF NOT EXISTS workspaces (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name VARCHAR(150) NOT NULL,
-        description TEXT,
-        owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS workspace_members (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        role VARCHAR(20) DEFAULT 'member',
-        joined_at TIMESTAMPTZ DEFAULT NOW(),
-        last_chat_seen_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(workspace_id, user_id)
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS invitations (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
-        inviter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        invitee_email VARCHAR(255) NOT NULL,
-        status VARCHAR(20) DEFAULT 'pending',
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(workspace_id, invitee_email)
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS workspace_messages (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        content TEXT NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS note_shares (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
-        workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
-        permission VARCHAR(20) NOT NULL DEFAULT 'viewer',
-        shared_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(note_id, workspace_id)
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS event_participants (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        status VARCHAR(20) DEFAULT 'pending',
-        decline_reason TEXT,
-        responded_at TIMESTAMPTZ,
-        UNIQUE(event_id, user_id)
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS notifications (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        type VARCHAR(60) NOT NULL,
-        title VARCHAR(180) NOT NULL,
-        message TEXT NOT NULL,
-        metadata JSONB,
-        is_read BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        read_at TIMESTAMPTZ
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS notification_preferences (
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        type VARCHAR(60) NOT NULL,
-        is_muted BOOLEAN DEFAULT FALSE,
-        updated_at TIMESTAMPTZ DEFAULT NOW(),
-        PRIMARY KEY (user_id, type)
-      )
-    `);
+    await runMigration(pool);
 
     await query(`CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON notifications(user_id, created_at DESC)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read)`);
