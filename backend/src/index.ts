@@ -106,7 +106,7 @@ const ensureBaseSchema = async () => {
   await query(schemaSql);
 };
 
-const bootstrap = async () => {
+const initializeSchema = async () => {
   try {
     // Ensure foundational tables (including users) exist before running follow-up startup statements.
     await ensureBaseSchema();
@@ -263,10 +263,13 @@ const bootstrap = async () => {
   } catch (err) {
     console.error('startup migration error:', err);
   }
+};
 
+const startServer = () => {
   httpServer.listen(PORT, () => {
     console.log(`Planora backend running on http://localhost:${PORT}`);
   });
 };
 
-bootstrap();
+startServer();
+void initializeSchema();
