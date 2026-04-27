@@ -49,6 +49,8 @@ npm run test:unit:frontend
 - `/workspace` - planner/calendar view
 - `/collaboration` - collaboration board
 - `/notes`, `/tasks`, `/profile`
+- `/forgot-password` - request a password reset email
+- `/reset-password` - set a new password from a reset link
 
 ## Notes
 

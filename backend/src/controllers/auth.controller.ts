@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { query } from '../lib/db';
-import { sendVerificationCodeEmail } from '../lib/email';
+import { sendPasswordResetEmail, sendVerificationCodeEmail } from '../lib/email';
 
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const MAX_AVATAR_DATA_URL_LENGTH = 2_800_000;
@@ -12,6 +12,9 @@ const VERIFICATION_EXPIRY_MINUTES = 3;
 const VERIFICATION_EXPIRY_MS = VERIFICATION_EXPIRY_MINUTES * 60 * 1000;
 const MAX_VERIFICATION_ATTEMPTS = 5;
 const RESEND_COOLDOWN_SECONDS = 30;
+const PASSWORD_RESET_RESEND_COOLDOWN_SECONDS = 30;
+const PASSWORD_RESET_EXPIRY_MINUTES = 5;
+const PASSWORD_RESET_EXPIRY_MS = PASSWORD_RESET_EXPIRY_MINUTES * 60 * 1000;
 const DEFAULT_EVENT_CATEGORIES = [
   { type: 'important', label: 'Important', color: '#ef4444' },
   { type: 'work', label: 'Work', color: '#f97316' },
@@ -26,6 +29,13 @@ const generateVerificationCode = () => String(Math.floor(100000 + Math.random() 
 
 const hashVerificationCode = (code: string) =>
   crypto.createHash('sha256').update(code).digest('hex');
+
+const generateResetToken = () => crypto.randomBytes(32).toString('hex');
+
+const hashResetToken = (token: string) =>
+  crypto.createHash('sha256').update(token).digest('hex');
+
+const getFrontendUrl = () => process.env.APP_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
 
 const sendVerificationCode = async (email: string, code: string) => {
   const emailResult = await sendVerificationCodeEmail({
@@ -299,6 +309,138 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error('ResendVerificationCode error:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+// ─── REQUEST PASSWORD RESET ────────────────────────────
+export const requestPasswordReset = async (req: Request, res: Response) => {
+  const { email } = req.body as { email?: string };
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required.' });
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+
+  try {
+    const result = await query<{
+      id: string;
+      email_verified_at: string | null;
+      password_reset_last_sent_at: string | null;
+    }>(
+      `SELECT id, email_verified_at, password_reset_last_sent_at
+       FROM users
+       WHERE email = $1`,
+      [normalizedEmail]
+    );
+
+    if (result.rows.length === 0 || !result.rows[0].email_verified_at) {
+      return res.status(200).json({
+        message: 'If this email exists, a password reset link has been sent.',
+        retryInSeconds: PASSWORD_RESET_RESEND_COOLDOWN_SECONDS,
+      });
+    }
+
+    const user = result.rows[0];
+
+    if (user.password_reset_last_sent_at) {
+      const elapsedMs = Date.now() - new Date(user.password_reset_last_sent_at).getTime();
+      const cooldownMs = PASSWORD_RESET_RESEND_COOLDOWN_SECONDS * 1000;
+      if (elapsedMs < cooldownMs) {
+        const waitSeconds = Math.ceil((cooldownMs - elapsedMs) / 1000);
+        return res.status(429).json({
+          message: `Please wait ${waitSeconds}s before requesting another reset link.`,
+          retryInSeconds: waitSeconds,
+        });
+      }
+    }
+
+    const token = generateResetToken();
+    const tokenHash = hashResetToken(token);
+    const expiresAt = new Date(Date.now() + PASSWORD_RESET_EXPIRY_MS);
+    const resetLink = `${getFrontendUrl().replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}`;
+
+    await query(
+      `UPDATE users
+       SET password_reset_token_hash = $1,
+           password_reset_expires_at = $2,
+           password_reset_last_sent_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $3`,
+      [tokenHash, expiresAt, result.rows[0].id]
+    );
+
+    const emailResult = await sendPasswordResetEmail({
+      to: normalizedEmail,
+      resetLink,
+      expiresInMinutes: PASSWORD_RESET_EXPIRY_MINUTES,
+    });
+
+    if (!emailResult.sent) {
+      throw new Error(emailResult.reason || 'Could not send password reset email.');
+    }
+
+    return res.status(200).json({
+      message: 'If this email exists, a password reset link has been sent.',
+      retryInSeconds: PASSWORD_RESET_RESEND_COOLDOWN_SECONDS,
+    });
+  } catch (err) {
+    console.error('RequestPasswordReset error:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+// ─── RESET PASSWORD ───────────────────────────────────
+export const resetPassword = async (req: Request, res: Response) => {
+  const { token, password } = req.body as { token?: string; password?: string };
+
+  if (!token || !password) {
+    return res.status(400).json({ message: 'Reset token and new password are required.' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ message: 'New password must be at least 8 characters.' });
+  }
+
+  const trimmedToken = String(token).trim();
+  if (!trimmedToken) {
+    return res.status(400).json({ message: 'Reset token and new password are required.' });
+  }
+
+  try {
+    const tokenHash = hashResetToken(trimmedToken);
+    const result = await query<{ id: string; password_reset_expires_at: string | null }>(
+      `SELECT id, password_reset_expires_at
+       FROM users
+       WHERE password_reset_token_hash = $1`,
+      [tokenHash]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: 'Invalid or expired reset link.' });
+    }
+
+    const user = result.rows[0];
+    if (!user.password_reset_expires_at || new Date(user.password_reset_expires_at).getTime() < Date.now()) {
+      return res.status(400).json({ message: 'Invalid or expired reset link.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    await query(
+      `UPDATE users
+       SET password_hash = $1,
+           password_reset_token_hash = NULL,
+           password_reset_expires_at = NULL,
+           updated_at = NOW()
+       WHERE id = $2`,
+      [passwordHash, user.id]
+    );
+
+    return res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (err) {
+    console.error('ResetPassword error:', err);
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };

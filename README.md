@@ -42,6 +42,8 @@ Use `frontend/.env.local` with:
 - `NEXTAUTH_URL` (usually `http://localhost:3000`)
 - `NEXTAUTH_SECRET`
 
+Password reset uses the same backend SMTP and app URL settings as verification and invitations; no extra env vars are required for the feature itself.
+
 ## Install
 
 From repository root:
@@ -119,4 +121,4 @@ Backend exposes:
 ## Notes
 
 - Realtime collaboration features use Socket.IO rooms for user and workspace channels.
-- Notification and invitation flows rely on SMTP settings in backend env.
+- Notification, verification, invitation, and password reset flows rely on SMTP settings in backend env.

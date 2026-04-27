@@ -7,6 +7,8 @@ import {
 	deleteMe,
 	verifyEmailCode,
 	resendVerificationCode,
+	requestPasswordReset,
+	resetPassword,
 } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
@@ -23,6 +25,12 @@ router.post('/verify-email', verifyEmailCode);
 
 // POST /api/auth/resend-verification
 router.post('/resend-verification', resendVerificationCode);
+
+// POST /api/auth/request-password-reset
+router.post('/request-password-reset', requestPasswordReset);
+
+// POST /api/auth/reset-password
+router.post('/reset-password', resetPassword);
 
 // GET /api/auth/me  (protected)
 router.get('/me', authenticate, getMe);

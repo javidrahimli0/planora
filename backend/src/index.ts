@@ -221,6 +221,9 @@ const initializeSchema = async () => {
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires_at TIMESTAMPTZ`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_attempts INTEGER DEFAULT 0`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_last_sent_at TIMESTAMPTZ`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token_hash VARCHAR(255)`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_expires_at TIMESTAMPTZ`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_last_sent_at TIMESTAMPTZ`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS user_event_categories JSONB DEFAULT '[]'::jsonb`);
     await query(`
       UPDATE users

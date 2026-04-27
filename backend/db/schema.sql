@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS users (
   verification_code_expires_at TIMESTAMPTZ,
   verification_code_attempts INTEGER DEFAULT 0,
   verification_last_sent_at TIMESTAMPTZ,
+  password_reset_token_hash VARCHAR(255),
+  password_reset_expires_at TIMESTAMPTZ,
+  password_reset_last_sent_at TIMESTAMPTZ,
   avatar_url    TEXT,
   theme         VARCHAR(10)  DEFAULT 'light',        -- 'light' | 'dark'
   user_event_categories JSONB DEFAULT '[]'::jsonb,
