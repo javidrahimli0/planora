@@ -160,6 +160,29 @@ CREATE TABLE IF NOT EXISTS workspace_messages (
 );
 
 -- ───────────────────────────────────────────
+-- NOTIFICATIONS
+-- ───────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS notifications (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type       VARCHAR(60) NOT NULL,
+  title      VARCHAR(180) NOT NULL,
+  message    TEXT NOT NULL,
+  metadata   JSONB,
+  is_read    BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  read_at    TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type       VARCHAR(60) NOT NULL,
+  is_muted   BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id, type)
+);
+
+-- ───────────────────────────────────────────
 -- INDEXES (for performance)
 -- ───────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_events_user_id      ON events(user_id);
@@ -176,3 +199,6 @@ CREATE INDEX IF NOT EXISTS idx_note_shares_workspace ON note_shares(workspace_id
 CREATE INDEX IF NOT EXISTS idx_workspace_members   ON workspace_members(workspace_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_event_participants  ON event_participants(event_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_workspace_messages_workspace_created ON workspace_messages(workspace_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON notifications(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_notification_preferences_user ON notification_preferences(user_id);

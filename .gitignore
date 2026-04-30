@@ -2,8 +2,14 @@
 node_modules/
 
 ELTE_FI_Thesis_Template/
+planora_app_screenshots/
+planora_testing_and_dbdiagram_pics/
+planora_wireframes/
 tmp_pdf_pages/
-Planora Screenshots/
+.claude/
+NAHID MURADLI_HJPIVF_THESIS.pdf
+nandin_documentation.pdf
+
 
 # Logs and runtime artifacts
 *.log
